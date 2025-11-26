@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <button>Nova Tarefa</button>
+     
+    
+    </style>
+<body onload="atualizar()">
+    
+    <div class="lista">
+        <!-- <button onclick="atualizar()">Atualizar Lista</button> -->
+        <div id="lista">
+
+        </div>
+        
+    </div>
+    
+
+    <script>
+        const urlBase = 'http://159.65.228.63/';
+        var dados = []
+
+        async function atualizar() {
+            const response = await fetch(urlBase+'produtos')
+            dados = await response.json();
+            criarTabela(dados)
+        }
+
+        function criarTabela(produtos) {
+            document.getElementById("lista").innerHTML = "";
+            const table = document.createElement("table");
+            table.setAttribute("border", "1");
+
+            const header = document.createElement("tr");
+
+        const thPri = document.createElement("th");
+        thPri.textContent = 'Prioridade';
+        const thDesc = document.createElement("th");
+        thDesc.textContent = 'Descrição';
+        const thLocal = document.createElement("th");
+        thLocal.textContent = 'Local';
+        const thRecursos = document.createElement("th");
+        thRecursos.textContent = 'Recursos Necessários';
+        const thData = document.createElement("th");
+        thData.textContent = 'Data Limite';
+        const thMat = document.createElement("th");
+        thMat.textContent = 'Matrícula';
+        
+        header.appendChild(thPri);
+        header.appendChild(thDesc);
+        header.appendChild(thLocal);
+        header.appendChild(thRecursos);
+        header.appendChild(thData);
+        header.appendChild(thMat);
+        table.appendChild(header);
+
+            for (const tarefa of tarefas) {
+                const tdPri = document.createElement("td");
+            const tdDesc = document.createElement("td");
+            const tdLocal = document.createElement("td");
+            const tdRecursos = document.createElement("td");
+            const tdData = document.createElement("td");
+            const tdMat = document.createElement("td");
+            tdPri.textContent = tarefa.prioridade;
+            tdDesc.textContent = tarefa.descricao;
+            tdLocal.textContent = tarefa.local;
+            tdRecursos.textContent = tarefa.recursosNecessarios?.join(', ');
+            tdData.textContent = tarefa.dataLimite;
+            tdMat.textContent = tarefa.matricula;
+
+            row.appendChild(tdPri);
+            row.appendChild(tdDesc);
+            row.appendChild(tdLocal);
+            row.appendChild(tdRecursos);
+            row.appendChild(tdData);
+            row.appendChild(tdMat);
+
+            table.appendChild(rowDados)
+            }
+            const container = document.getElementById('lista');
+            container.appendChild(table);
+        }
+
+        async function salvar(){
+            if (document.getElementById('codigobarras').value == '') {
+                alert('Código de barras inválido');
+                return
+            }
+            if (document.getElementById('nome').value == '') {
+                alert('Nome inválido');
+                return
+            }
+            if (document.getElementById('valor').value == '') {
+                alert('Valor inválido');
+                return
+            }
+
+            for (const produto of dados) {
+                if (document.getElementById('nome').value == produto.nome) {
+                    console.log(document.getElementById('nome').value, produto.nome)
+                    alert('Produto ja está na lista')
+                    return
+                }
+            }
+
+            const dadosInsert = {
+                codBarras: document.getElementById('codigobarras').value,
+                nome: document.getElementById('nome').value,
+                valor: document.getElementById('valor').value
+            }
+
+            await fetch(urlBase+'produtos', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify(dadosInsert)
+            })
+
+            atualizar()
+
+            alert('Produto salvo :)')
+        }
+        
+    </script>
+</body>
+
+</html>
