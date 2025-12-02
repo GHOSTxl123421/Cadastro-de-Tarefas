@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+        }
+        .urgente {
+            color: red;
+            font-weight: bold;
+        }
+        .top-menu {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body onload="carregar()">
+    <h2>Lista de Tarefas</h2>
+
+    <div class="top-menu">
+        <a href="cadastro.html">
+            <button>Nova Tarefa</button>
+        </a>
+    </div>
+
+    <div id="lista"></div>
+
+    <script>
+        const urlBase = 'http://159.65.228.63/';
+
+        function formatarDataBR(dataISO) {
+        const data = new Date(dataISO);
+        if (isNaN(data)) return dataISO;
+
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+
+        const horas = String(data.getHours()).padStart(2, "0");
+        const minutos = String(data.getMinutes()).padStart(2, "0");
+        const segundos = String(data.getSeconds()).padStart(2, "0");
+
+        return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+    }
+
+        async function carregar() {
+            const response = await fetch(urlBase + 'tarefas');
+            const tarefas = await response.json();
+            montarTabela(tarefas);
+        }
+
+        function montarTabela(tarefas) {
+            const container = document.getElementById("lista");
+            container.innerHTML = "";
+
+            if (tarefas.length === 0) {
+                container.innerHTML = "<p><b>Nenhuma tarefa cadastrada</b></p>";
+                return;
+            }
+
+            const table = document.createElement("table");
+
+            const header = document.createElement("tr");
+            const colunas = ["Prioridade", "Descrição", "Local", "Recursos", "Data Limite", "Matrícula"];
+            for (const c of colunas) {
+                const th = document.createElement("th");
+                th.textContent = c;
+                header.appendChild(th);
+            }
+            table.appendChild(header);
+
+            for (const t of tarefas) {
+                const row = document.createElement("tr");
+
+                const tdPri = document.createElement("td");
+                tdPri.textContent = t.prioridade;
+                if (t.prioridade === "Urgente") tdPri.classList.add("urgente");
+
+                const tdDesc = document.createElement("td");
+                tdDesc.textContent = t.descricao;
+
+                const tdLocal = document.createElement("td");
+                tdLocal.textContent = t.local;
+
+                const tdRec = document.createElement("td");
+                let recursos = t.recursosNecessarios;
+                
+                if (typeof recursos === "string") {
+                     recursos = [recursos];
+                    }
+
+                if (!Array.isArray(recursos)) {
+                     recursos = [];
+                    }
+
+                tdRec.textContent = recursos.join(", ");
+
+
+                const tdData = document.createElement("td");
+                tdData.textContent = formatarDataBR(t.dataLimite);
+
+                const tdMat = document.createElement("td");
+                tdMat.textContent = t.matricula;
+
+                row.appendChild(tdPri);
+                row.appendChild(tdDesc);
+                row.appendChild(tdLocal);
+                row.appendChild(tdRec);
+                row.appendChild(tdData);
+                row.appendChild(tdMat);
+
+                table.appendChild(row);
+            }
+
+            container.appendChild(table);
+        }
+    </script>
+</body>
+</html>

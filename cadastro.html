@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+        }
+        input, select {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Cadastrar Tarefa</h2>
+
+    <a href="lista.html">
+        <button>Voltar</button>
+    </a>
+    <br><br>
+
+    <div class="form">
+        <label>Prioridade</label>
+        <select id="prioridade">
+            <option value="">Selecione</option>
+            <option>Baixa</option>
+            <option>Normal</option>
+            <option>Urgente</option>
+        </select>
+
+        <label>Descrição</label>
+        <input id="descricao">
+
+        <label>Local</label>
+        <input id="local">
+
+        <label>Recursos Necessários (separados por vírgula)</label>
+        <input id="recursos">
+
+        <label>Data Limite (yyyy-mm-dd hh:mm:ss)</label>
+        <input id="data">
+
+        <label>Matrícula</label>
+        <input id="matricula">
+
+        <button onclick="salvar()">Salvar</button>
+    </div>
+
+    <script>
+        const urlBase = 'http://159.65.228.63/';
+
+        function formatarDataBR(dataISO) {
+        const data = new Date(dataISO);
+        if (isNaN(data)) return dataISO;
+
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+
+        const horas = String(data.getHours()).padStart(2, "0");
+        const minutos = String(data.getMinutes()).padStart(2, "0");
+        const segundos = String(data.getSeconds()).padStart(2, "0");
+
+        return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+    }
+
+        async function salvar() {
+
+            
+            if (!prioridade.value) return alert("Prioridade obrigatória");
+            if (!descricao.value) return alert("Descrição obrigatória");
+            if (!local.value) return alert("Local obrigatório");
+            if (!data.value) return alert("Data limite obrigatória");
+            if (!matricula.value) return alert("Matrícula obrigatória");
+
+            const recursosLista = recursos.value.split(",").map(x => x.trim()).filter(x => x);
+
+            const tarefa = {
+                prioridade: prioridade.value,
+                descricao: descricao.value,
+                local: local.value,
+                recursosNecessarios: recursosLista,
+                dataLimite: data.value,
+                matricula: Number(matricula.value)
+            };
+
+            await fetch(urlBase + "tarefas", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(tarefa)
+            });
+
+            alert("Tarefa cadastrada!");
+            window.location = "lista.html";
+        }
+    </script>
+
+</body>
+</html>
